@@ -2,7 +2,6 @@
 <?php
 
 define('BASE_URL', 'http://www.junodownload.com/');
-define('DESTINATION_DIR', '/tmp/');
 define('NUMBER_OF_SONGS_FROM_ARTIST_TO_PLAY', 1);
 define('JUNOS_URL', 'http://www.junodownload.com/search/' .
                     '?as=1&q=%s&s_search_precision=all' .
@@ -28,6 +27,23 @@ function get_stdin($q)
     echo $q;
     $stdin = fgets(STDIN);
     return substr($stdin, 0, strlen($stdin) - 1);
+}
+
+function get_destination_dir()
+{
+    $destination = getenv('HOME') . '/junofetch/';
+
+    if (file_exists($destination))
+    {
+        return $destination;
+    }
+    if (!mkdir($destination))
+    {
+        echo "Couldn't create $destination\n";
+        exit(1);
+    }
+
+    return $destination;
 }
 
 # Main
@@ -82,7 +98,7 @@ foreach ($content as $k => $v)
 
     // Downloads files and tag them
     $remoteFile = $content[$k + 1];
-    $localFile  = DESTINATION_DIR . basename($remoteFile);
+    $localFile  = get_destination_dir() . basename($remoteFile);
     $junosUrl   = sprintf(JUNOS_URL, urlencode('"' . $artist . '"'));
 
     if (file_exists($localFile) === false)
