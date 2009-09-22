@@ -32,7 +32,15 @@ function get_stdin($q)
 
 # Main
 
-$file    = get_stdin('Enter the juno mailing list link or html file: ');
+if ($argc > 1)
+{
+    $file = $argv[1];
+}
+else
+{
+    $file = get_stdin('Enter the juno mailing list link or html file: ');
+}
+
 $content = get_file($file);
 
 if (preg_match('`href="([^"]+\.m3u)"`', $content, $matches) === 0)
