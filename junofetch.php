@@ -31,7 +31,7 @@ function get_stdin($q)
 
 function get_destination_dir()
 {
-    $destination = getenv('HOME') . '/junofetch/';
+    $destination = getenv('HOME') . '/junofetch';
 
     if (file_exists($destination))
     {
@@ -46,6 +46,20 @@ function get_destination_dir()
     return $destination;
 }
 
+function auto_clean()
+{
+    $dir = get_destination_dir();
+
+    foreach (glob($dir . '/*.mp3') as $file)
+    {
+        // Delete files older than a week
+        if (filemtime($file) < time() - (86400 * 7))
+        {
+            unlink($file);
+        }
+    }
+}
+
 # Main
 
 if ($argc > 1)
@@ -57,6 +71,7 @@ else
     $file = get_stdin('Enter the juno mailing list link or html file: ');
 }
 
+auto_clean();
 $content = get_file($file);
 
 if (preg_match('`href="([^"]+\.m3u)"`', $content, $matches) === 0)
@@ -98,7 +113,7 @@ foreach ($content as $k => $v)
 
     // Downloads files and tag them
     $remoteFile = $content[$k + 1];
-    $localFile  = get_destination_dir() . basename($remoteFile);
+    $localFile  = get_destination_dir() . '/' . basename($remoteFile);
     $junosUrl   = sprintf(JUNOS_URL, urlencode('"' . $artist . '"'));
 
     if (file_exists($localFile) === false)
